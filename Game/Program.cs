@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml.Serialization;
 using System.Timers;
@@ -68,6 +68,7 @@ class Program
             Console.ReadKey();
         }
         Menu();
+        return;
     }
 
     private static void Menu()
@@ -94,10 +95,12 @@ class Program
                     case 1: _ = StartGameAsync(); break;
                     case 2: Rules(); break;
                     case 3: ChooseLanguage(); Menu(); break;
-                    case 4: Environment.Exit(0); return;
+                    case 4: break;
                 }
             }
+            break;
         }
+        return;
     }
 
     private static void Rules()
@@ -108,6 +111,7 @@ class Program
         Console.WriteLine($"\n{Game.Properties.Resources.PressAnyKey}");
         Console.ReadKey();
         Menu();
+        return;
     }
 
     private static async Task StartGameAsync()
@@ -160,7 +164,7 @@ class Program
             Console.WriteLine($"\n{Game.Properties.Resources.StartWord}{word}");
             Console.Write($"{Game.Properties.Resources.WriteWord.Replace("{nameOfCurrentPlayer}", $"{nameOfCurrentPlayer}")}");
 
-            var timerTask = TimerAsync(20);
+            var timerTask = TimerAsync(5);
 
             input = Console.ReadLine()?.ToLower() ?? "";
 
@@ -225,6 +229,7 @@ class Program
         Console.WriteLine($"{Game.Properties.Resources.Winner.Replace("{nameOfCurrentPlayer}", $"{winner}")}");
         Console.WriteLine(Game.Properties.Resources.PressAnyKey);
         Console.ReadKey();
+        return;
     }
 
     // Checks if the entered word contains non-alphabet characters
@@ -302,4 +307,3 @@ class Program
     }
    
 }
-
