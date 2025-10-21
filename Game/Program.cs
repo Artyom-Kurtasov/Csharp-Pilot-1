@@ -164,7 +164,7 @@ class Program
             Console.WriteLine($"\n{Game.Properties.Resources.StartWord}{word}");
             Console.Write($"{Game.Properties.Resources.WriteWord.Replace("{nameOfCurrentPlayer}", $"{nameOfCurrentPlayer}")}");
 
-            var timerTask = TimerAsync(5);
+            var timerTask = TimerAsync(20);
 
             input = Console.ReadLine()?.ToLower() ?? "";
 
