@@ -189,4 +189,7 @@
   <data name="NonAlphabet" xml:space="preserve">
     <value>В слове не могут быть не-алфавитные символы!</value>
   </data>
+  <data name="InvalidValue" xml:space="preserve">
+    <value>Некорректное значение!</value>
+  </data>
 </root>

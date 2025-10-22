@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "ptWR80BhMac=",
+  "success": true,
+  "projectFilePath": "E:\\GitHubRep\\Pilot1Final-app\\Game\\Game.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\prive\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\9.0.10\\microsoft.windowsdesktop.app.ref.9.0.10.nupkg.sha512",
+    "C:\\Users\\prive\\.nuget\\packages\\microsoft.netcore.app.ref\\9.0.10\\microsoft.netcore.app.ref.9.0.10.nupkg.sha512",
+    "C:\\Users\\prive\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\9.0.10\\microsoft.aspnetcore.app.ref.9.0.10.nupkg.sha512",
+    "C:\\Users\\prive\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\9.0.10\\microsoft.netcore.app.host.win-x64.9.0.10.nupkg.sha512"
+  ],
+  "logs": []
+}

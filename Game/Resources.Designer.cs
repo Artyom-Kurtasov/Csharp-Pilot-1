@@ -115,6 +115,15 @@ namespace Game.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Некорректное значение!.
+        /// </summary>
+        internal static string InvalidValue {
+            get {
+                return ResourceManager.GetString("InvalidValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Меню.
         /// </summary>
         internal static string Menu {

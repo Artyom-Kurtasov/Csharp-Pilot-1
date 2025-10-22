@@ -1,0 +1,31 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v9.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v9.0": {
+      "Game/1.0.0": {
+        "runtime": {
+          "Game.dll": {}
+        },
+        "resources": {
+          "en/Game.resources.dll": {
+            "locale": "en"
+          },
+          "ru/Game.resources.dll": {
+            "locale": "ru"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Game/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

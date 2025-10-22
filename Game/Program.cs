@@ -1,293 +1,390 @@
-using System;
-using System.Security.Cryptography.X509Certificates;
-using System.Xml.Serialization;
-using System.Timers;
-using System.Linq;
-using System.Resources;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
-using System.ComponentModel;
-using System.Reflection.Metadata.Ecma335;
+using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 class Program
 {
-    // Current game language (ru/en)
-    private static string? language { get; set; }
-    // List of already used words
-    private static List<string> usedWords = new List<string>();
-    // Dictionary of letters and their count in the starting word
-    private static Dictionary<char, int> charOfStartWord = new Dictionary<char, int>();
-    // Current player (true - first, false - second)
-    private static bool currentPlayer { get; set; } = true;
-    // Current player name for display
-    private static string? nameOfCurrentPlayer { get; set; }
-    // Starting word of the game
-    private static string? word { get; set; }                                                 
-
-
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
-        ChooseLanguage();
+        GameLanguage.ChooseLanguage();
+        await Menu.MenuAsync();
+    }
+}
+    static class GameLanguage
+    {
+        public static void ChooseLanguage()
+        {
+            while (true)
+            {
+                LanguageMenuManager.DisplayMenu();
+                string? choice = Console.ReadLine() ?? "";
+
+                if (LanguageValidator.IsValidChoice(choice))
+                {
+                    LanguageChoose.SetLanguage(choice);
+                    CultureConfigurator.CultureConfig();
+                    LanguageMenuManager.DisplaySelectionMessage();
+                    Console.ReadKey();
+                    break;
+                }
+                LanguageMenuManager.DisplayError();
+                Console.ReadKey();
+            }
+        }
     }
 
-    private static void ChooseLanguage()
+    static class Menu
     {
-        while (true)
+        public static async Task MenuAsync()
+        {
+            while (true)
+            {
+                Console.Clear();
+                MenuTextManager.DisplayMenu();
+                string? choice = Console.ReadLine() ?? "";
+
+                if (await MenuSelectItem.Select(choice))
+                {
+                    break;
+                }
+            }
+        }
+    }
+
+    static class GameRules
+    {
+        public static void Rules()
+        {
+            Console.WriteLine($"\n{Game.Properties.Resources.RuleString1}" +
+                $"\n{Game.Properties.Resources.RuleString2}" +
+                $"\n{Game.Properties.Resources.RuleString3}" +
+                $"\n\n{Game.Properties.Resources.PressAnyKey}");
+
+            Console.ReadKey();
+        }
+    }
+
+    static class MyGame
+    {
+        public static async Task StartGameAsync()
         {
             Console.Clear();
-            Console.WriteLine("Выберите язык игры / Choose the game language:");
-            Console.WriteLine("1. Русский (Russian)");
-            Console.WriteLine("2. English (Английский)");
-            Console.Write("\nВаш выбор (1 или 2) / Your choice (1 or 2): ");
-            string? choice = Console.ReadLine() ?? "";
+            GameLogic.ClearList();
 
-            if (int.TryParse(choice, out int number) && (number == 1 || number == 2))
+            while (true)
             {
-                if (number == 1)
+                Console.Write($"\n{Game.Properties.Resources.WriteF8T30}: ");
+                GameState.word = Console.ReadLine()?.ToLower() ?? "";
+
+                if (GameValidator.IsLengthValid(GameState.word) && !GameValidator.IsContainsInvalidCharacters(GameState.word))
                 {
-                    language = "ru";
-                    Console.WriteLine("\nВыбран русский язык.");
-                    Console.WriteLine("\nНажмите любую клавишу для продолжения.");
+                    GameLogic.AddWordsToList(GameState.word);
+                    break;
+                }
+
+                if (GameValidator.IsContainsInvalidCharacters(GameState.word))
+                {
+                    Console.WriteLine(Game.Properties.Resources.NonAlphabet);
                 }
                 else
                 {
-                    language = "en";
-                    Console.WriteLine("\nEnglish language chosen.");
-                    Console.WriteLine("\nPress any key to continue.");
+                    Console.WriteLine($"\n{Game.Properties.Resources.InvalidLength}");
                 }
 
+                Console.WriteLine($"\n{Game.Properties.Resources.PressAnyKey}");
                 Console.ReadKey();
                 Console.Clear();
-                break;
             }
 
-            Console.Write("\nНекорректно значение! / ");
-            Console.WriteLine("Invalid value!");
-            Console.Write("\nНажмите любую клавишу для продолжения / ");
-            Console.WriteLine("Press any key to continue.");
-            Console.ReadKey();
+            GameLogic.BuildLetterDictionary();
+            string? input;
+
+            while (true)
+            {
+                GameLogic.PlayerState();
+                GameTextManager.DisplayRoundInfo();
+
+                TimerManager.StartTimer();
+                input = Console.ReadLine()?.ToLower() ?? "";
+
+                if (TimerManager.IsTimerUp)
+                {
+                    GameLogic.WinnerIs();
+                    GameTextManager.DisplayEndGameMessage();
+                    Console.ReadKey();
+                    return;
+                }
+
+                if (GameValidator.IsContainsInvalidCharacters(input))
+                {
+                    Console.WriteLine($"\n{Game.Properties.Resources.NonAlphabet}");
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    Console.WriteLine($"\n{Game.Properties.Resources.CantBeNull}");
+                    continue;
+                }
+
+                if (GameValidator.IsWordAlreadyUsed(GameState.usedWords, input))
+                {
+                    Console.WriteLine($"\n{Game.Properties.Resources.TryAnother}");
+                    continue;
+                }
+
+                bool validWord = true;
+
+                foreach (char letterOfWord in input.Distinct())
+                {
+                    int countOfLetter = input.Count(letter => letter == letterOfWord);
+
+                    if (GameValidator.IsContainsLetterOrNot(GameState.charOfStartWord, letterOfWord))
+                    {
+                        Console.WriteLine($"\n{Game.Properties.Resources.NoLetter.Replace("{letterOfWord}", $"{letterOfWord}")} ");
+                        validWord = false;
+                        break;
+                    }
+                    else if (GameValidator.IsThereMoreLetterOrNot(GameState.charOfStartWord, countOfLetter, letterOfWord))
+                    {
+                        Console.WriteLine($"\n{Game.Properties.Resources.MoreThen.Replace("{letterOfWord}", $"{letterOfWord}")}");
+                        validWord = false;
+                        break;
+                    }
+                }
+
+                if (validWord)
+                {
+                    Console.WriteLine($"\n{Game.Properties.Resources.CorrectWord}");
+                    GameLogic.ReversePlayerState();
+                    GameLogic.AddWordsToList(input);
+                }
+            }
         }
-        Menu();
-        return;
     }
 
-    private static void Menu()
+static class LanguageChoose
+{
+    public static string? language { get; private set; }
+
+    public static void SetLanguage(string? choice)
+    {
+        language = choice == "1" ? "ru" : "en";
+    }
+}
+
+static class LanguageValidator
+{
+    public static bool IsValidChoice(string? choice)
+    {
+        return choice == "1" || choice == "2";
+    }
+}
+
+static class CultureConfigurator
+{
+    public static void CultureConfig()
+    {
+        var culture = new CultureInfo(LanguageChoose.language ?? "ru");
+        Game.Properties.Resources.Culture = culture;
+        Thread.CurrentThread.CurrentUICulture = culture;
+    }
+}
+
+static class LanguageMenuManager
+{
+    public static void DisplayMenu()
     {
         Console.Clear();
-
-        Thread.CurrentThread.CurrentUICulture = new CultureInfo(language ?? "ru");
-
-        Console.WriteLine($"-------- {Game.Properties.Resources.Menu} --------");
-        Console.WriteLine($"1. {Game.Properties.Resources.Start}");
-        Console.WriteLine($"2. {Game.Properties.Resources.Rules}");
-        Console.WriteLine($"3. {Game.Properties.Resources.ChangeLang}");
-        Console.WriteLine($"4. {Game.Properties.Resources.Exit}");
-        Console.Write($"\n{Game.Properties.Resources.YourChoice}: ");
-
-        while (true)
-        {
-            string choice = Console.ReadLine() ?? "";
-
-            if (int.TryParse(choice, out int number))
-            {
-                switch (number)
-                {
-                    case 1: _ = StartGameAsync(); break;
-                    case 2: Rules(); break;
-                    case 3: ChooseLanguage(); Menu(); break;
-                    case 4: break;
-                }
-            }
-            break;
-        }
-        return;
+        Console.WriteLine("Выберите язык игры / Choose the game language:" +
+            "\n1. Русский (Russian)" +
+            "\n2. English (Английский)" +
+            "\nВаш выбор (1 или 2) / Your choice (1 or 2): ");
     }
 
-    private static void Rules()
+    public static void DisplayError()
     {
-        Console.WriteLine($"\n{Game.Properties.Resources.RuleString1}");  
-        Console.WriteLine(Game.Properties.Resources.RuleString2);  
-        Console.WriteLine(Game.Properties.Resources.RuleString3);  
-        Console.WriteLine($"\n{Game.Properties.Resources.PressAnyKey}");
-        Console.ReadKey();
-        Menu();
-        return;
+        Console.Write("\nНекорректно значение! / " +
+            "Invalid value!" +
+            "\nНажмите любую клавишу для продолжения / " +
+            "Press any key to continue.");
     }
 
-    private static async Task StartGameAsync()
+    public static void DisplaySelectionMessage()
     {
-        Console.Clear();
-        usedWords.Clear();
-
-        while (true)
+        if (LanguageChoose.language == "ru")
         {
-            Console.Write($"\n{Game.Properties.Resources.WriteF8T30}: ");
-            currentPlayer = false;
-            word = Console.ReadLine()?.ToLower() ?? "";
-
-            if (word.Length >= 8 && word.Length <= 30 && !ContainsInvalidCharacters(word))
-            {
-                usedWords.Add(word);
-                break;
-            }
-
-            if (ContainsInvalidCharacters(word))
-            {
-                Console.WriteLine(Game.Properties.Resources.NonAlphabet);
-            }
-            else
-            {
-                Console.WriteLine($"\n{Game.Properties.Resources.InvalidLength}");
-            }
-
-            Console.WriteLine($"\n{Game.Properties.Resources.PressAnyKey}");
-            Console.ReadKey();
-            Console.Clear();
+            Console.WriteLine("\nВыбран русский язык." +
+                "\nНажмите любую клавишу для продолжения.");
         }
-
-        foreach (char letter in word)
+        else
         {
-            if (charOfStartWord.ContainsKey(letter))
-                charOfStartWord[letter]++;
-            else
-                charOfStartWord[letter] = 1;
-        }
-
-        string? input;
-
-        while (true)
-        {
-            nameOfCurrentPlayer = currentPlayer
-                ? Game.Properties.Resources.SecondPlayer
-                : Game.Properties.Resources.FirstPlayer;
-            
-            Console.WriteLine($"\n{Game.Properties.Resources.StartWord}{word}");
-            Console.Write($"{Game.Properties.Resources.WriteWord.Replace("{nameOfCurrentPlayer}", $"{nameOfCurrentPlayer}")}");
-
-            var timerTask = TimerAsync(20);
-
-            input = Console.ReadLine()?.ToLower() ?? "";
-
-            if (timerTask.IsCompleted)
-            {
-                endGame();
-                Menu();
-                return;
-            }
-
-            if (ContainsInvalidCharacters(input))
-            {
-                Console.WriteLine($"\n{Game.Properties.Resources.NonAlphabet}");
-                continue;
-            }
-
-            if (IsStringNullOrWhiteSpace(input))
-            {
-                continue;
-            }
-
-            if (IsWordAlreadyUsed(input))
-            {
-                continue;
-            }
-
-            bool validWord = true;
-
-            foreach (char letterOfWord in input.Distinct())
-            {
-                int countOfLetter = input.Count(letter =>
-                    letter == letterOfWord);
-
-                if (ContainsLetterOrNot(letterOfWord))
-                {
-                    validWord = false;
-                    break;
-                }
-                else if (WordHasMoreLetter(countOfLetter, letterOfWord))
-                {
-                    validWord = false;
-                    break;
-                }
-            }
-
-            if (validWord)
-            {
-                Console.WriteLine($"\n{Game.Properties.Resources.CorrectWord}");
-                currentPlayer = !currentPlayer;
-                usedWords.Add(input ?? "");
-            }
+            Console.WriteLine("\nEnglish language chosen." +
+                "\nPress any key to continue.");
         }
     }
+}
 
-    // Display time's up message and game results (winner/loser)
-    private static void endGame()
+static class MenuTextManager
+{
+    public static void DisplayMenu()
     {
-        Console.WriteLine($"\n{Game.Properties.Resources.TimesUp.Replace("{nameOfCurrentPlayer}", $"{nameOfCurrentPlayer}")}");
-        string winner = currentPlayer
+        Console.WriteLine($"-------- {Game.Properties.Resources.Menu} --------" +
+            $"\n1. {Game.Properties.Resources.Start}" +
+            $"\n2. {Game.Properties.Resources.Rules}" +
+            $"\n3. {Game.Properties.Resources.ChangeLang}" +
+            $"\n4. {Game.Properties.Resources.Exit}" +
+            $"\n{Game.Properties.Resources.YourChoice}:");
+    }
+
+    public static void DisplayError()
+    {
+        Console.WriteLine($"{Game.Properties.Resources.InvalidValue}");
+    }
+}
+
+static class MenuSelectItem
+{
+    public static async Task<bool> Select(string? choice)
+    {
+        switch (choice)
+        {
+            case "1":
+                await MyGame.StartGameAsync();
+                return false;
+
+            case "2":
+                GameRules.Rules();
+                return false;
+
+            case "3":
+                GameLanguage.ChooseLanguage();
+                return false;
+
+            case "4":
+                return true;
+
+            default:
+                MenuTextManager.DisplayError();
+                Console.ReadKey();
+                return false;
+        }
+    }
+}
+
+static class GameState
+{
+    public static Dictionary<char, int> charOfStartWord = new Dictionary<char, int>();
+    public static string? word { get; set; }
+    public static string? winner { get; set; }
+    public static List<string> usedWords = new List<string>();
+    public static bool currentPlayer { get; set; } = false;
+    public static string? NameOfCurrentPlayer { get; set; }
+}
+static class GameLogic
+{
+    public static void PlayerState()
+    {
+        GameState.NameOfCurrentPlayer = GameState.currentPlayer
+               ? Game.Properties.Resources.SecondPlayer
+               : Game.Properties.Resources.FirstPlayer;
+    }
+
+    public static void ReversePlayerState()
+    {
+        GameState.currentPlayer = !GameState.currentPlayer;
+    }
+
+    public static void AddWordsToList(string input)
+    {
+        GameState.usedWords.Add(input ?? "");
+    }
+
+    public static void ClearList()
+    {
+        GameState.usedWords.Clear();
+    }
+
+    public static void WinnerIs()
+    {
+        GameState.winner = GameState.currentPlayer
             ? Game.Properties.Resources.FirstPlayer
             : Game.Properties.Resources.SecondPlayer;
-        Console.WriteLine($"{Game.Properties.Resources.Winner.Replace("{nameOfCurrentPlayer}", $"{winner}")}");
-        Console.WriteLine(Game.Properties.Resources.PressAnyKey);
-        Console.ReadKey();
-        return;
     }
 
-    // Checks if the entered word contains non-alphabet characters
-    private static bool ContainsInvalidCharacters(string input)
+    public static void BuildLetterDictionary()
     {
-        if (Regex.IsMatch(input, @"[^a-zA-Zа-яА-Я]"))
+        foreach (char letter in GameState.word ?? "")
         {
-            return true;
+            if (GameState.charOfStartWord.ContainsKey(letter))
+                GameState.charOfStartWord[letter]++;
+            else
+                GameState.charOfStartWord[letter] = 1;
         }
-        return false;
     }
+}
 
-    // Checks if the entered word contains more of a specific letter than the original word
-    private static bool WordHasMoreLetter(int countOfLetter, char letterOfWord)
+static class GameTextManager
+{
+    public static string Winner => Game.Properties.Resources.Winner.Replace("{nameOfCurrentPlayer}", $"{GameState.winner}");
+    public static string TimesUp => Game.Properties.Resources.TimesUp.Replace("{nameOfCurrentPlayer}", $"{GameState.NameOfCurrentPlayer}");
+    public static string WriteWord => Game.Properties.Resources.WriteWord.Replace("{nameOfCurrentPlayer}", $"{GameState.NameOfCurrentPlayer}");
+
+    public static void DisplayEndGameMessage()
     {
-        if (countOfLetter > charOfStartWord[letterOfWord])
-        {
-            Console.WriteLine($"\n{Game.Properties.Resources.MoreThen.Replace("{letterOfWord}", $"{letterOfWord}")}");
-            return true;
-        }
-        return false;
+        Console.WriteLine($"\n{TimesUp} {Winner}" +
+            $"\n{Game.Properties.Resources.PressAnyKey}");
     }
 
-    // Checks if the letter is contained in the original word
-    private static bool ContainsLetterOrNot(char letterOfWord)
+    public static void DisplayRoundInfo()
     {
-        if (!charOfStartWord.ContainsKey(letterOfWord))
-        {
-            Console.WriteLine($"\n{Game.Properties.Resources.NoLetter.Replace("{letterOfWord}", $"{letterOfWord}")} ");
-            return true;
-        }
-        return false;
+        Console.WriteLine($"\n{Game.Properties.Resources.StartWord}{GameState.word}");
+        Console.Write($"{WriteWord}");
     }
+}
 
-    // Checks if the entered string is empty or null
-    private static bool IsStringNullOrWhiteSpace(string input)
+static class GameValidator
+{
+    public static bool IsThereMoreLetterOrNot(Dictionary<char, int> charOfStartWord, int countOfLetter, char letterOfWord)
     {
-        if (string.IsNullOrWhiteSpace(input))
-        {
-            Console.WriteLine($"\n{Game.Properties.Resources.CantBeNull}");
-            return true;
-        }
-        return false;
+        return countOfLetter > charOfStartWord[letterOfWord];
     }
 
-    // Checks if the word has already been used in the game
-    private static bool IsWordAlreadyUsed(string input)
+    public static bool IsContainsLetterOrNot(Dictionary<char, int> charOfStartWord, char letterOfWord)
     {
-        if (usedWords.Contains(input ?? ""))
-        {
-            Console.WriteLine($"\n{Game.Properties.Resources.TryAnother}");
-            return true;
-        }
-        return false;
+        return !charOfStartWord.ContainsKey(letterOfWord);
     }
 
-    // Async timer
-    private static async Task TimerAsync(int seconds)
+    public static bool IsWordAlreadyUsed(List<string> usedWords, string input)
+    {
+        return usedWords.Contains(input ?? "");
+    }
+
+    public static bool IsContainsInvalidCharacters(string input)
+    {
+        return Regex.IsMatch(input, @"[^a-zA-Zа-яА-Я]");
+    }
+
+    public static bool IsLengthValid(string word)
+    {
+        return word.Length >= 8 && word.Length <= 30;
+    }
+}
+
+static class TimerManager
+{
+    public static Task? timer;
+    public static bool IsTimerUp => timer?.IsCompleted ?? false;
+
+    public static void StartTimer()
+    {
+        timer = TimerAsync(20);
+    }
+
+    public static async Task TimerAsync(int seconds)
     {
         var tcs = new TaskCompletionSource<bool>();
         using var timer = new System.Timers.Timer(1000);
@@ -305,5 +402,4 @@ class Program
         timer.Start();
         await tcs.Task;
     }
-   
 }

@@ -189,4 +189,7 @@
   <data name="NonAlphabet" xml:space="preserve">
     <value>A word cannot contain non-alphabet characters!</value>
   </data>
+  <data name="InvalidValue" xml:space="preserve">
+    <value>Invalid value!</value>
+  </data>
 </root>
