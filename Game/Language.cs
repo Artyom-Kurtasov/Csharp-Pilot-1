@@ -1,4 +1,4 @@
-﻿using Game.Models;  // Используем общую модель вместо CultureConfig
+﻿using Game.Models;  
 
 namespace Language
 {
@@ -9,19 +9,18 @@ namespace Language
             while (true)
             {
                 LanguageMenuManager.DisplayMenu();
-                string? choice = Console.ReadLine() ?? "";
+                string? choice = UI.ReadUserInput();
 
                 if (LanguageValidator.IsValidChoice(choice))
                 {
                     LanguageChoose.SetLanguage(choice);
-                    // Убрали прямой вызов CultureConfigurator
                     LanguageMenuManager.DisplaySelectionMessage();
-                    Console.ReadKey();
+                    UI.WaitForUser();
                     break;
                 }
 
                 LanguageMenuManager.DisplayError();
-                Console.ReadKey();
+                UI.WaitForUser();
             }
         }
     }
@@ -46,8 +45,8 @@ namespace Language
     {
         public static void DisplayMenu()
         {
-            Console.Clear();
-            Console.Write("Выберите язык игры / Choose the game language:" +
+            UI.ClearUI();
+            UI.PrintToUI("Выберите язык игры / Choose the game language:" +
                 "\n1. Русский (Russian)" +
                 "\n2. English (Английский)" +
                 "\nВаш выбор (1 или 2) / Your choice (1 or 2): ");
@@ -55,7 +54,7 @@ namespace Language
 
         public static void DisplayError()
         {
-            Console.Write("\nНекорректно значение! / Invalid value!" +
+            UI.PrintToUI("\nНекорректно значение! / Invalid value!" +
                 "\nНажмите любую клавишу для продолжения / Press any key to continue.");
         }
 
@@ -63,12 +62,12 @@ namespace Language
         {
             if (LanguageOptions.CurrentLanguage == "ru")
             {
-                Console.WriteLine("\nВыбран русский язык." +
+                UI.PrintToUI("\nВыбран русский язык." +
                     "\nНажмите любую клавишу для продолжения.");
             }
             else
             {
-                Console.WriteLine("\nEnglish language chosen." +
+                UI.PrintToUI("\nEnglish language chosen." +
                     "\nPress any key to continue.");
             }
         }

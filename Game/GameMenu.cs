@@ -1,6 +1,5 @@
 ﻿using Language;
 using GameRules;
-using WordGame;
 
 namespace GameMenu
 {
@@ -10,9 +9,9 @@ namespace GameMenu
         {
             while (true)
             {
-                Console.Clear();
+                UI.ClearUI();
                 MenuTextManager.DisplayMenu();
-                string? choice = Console.ReadLine() ?? "";
+                string? choice = UI.ReadUserInput();
 
                 if (await MenuSelectItem.ProcessSelectionAsync(choice))
                     break;
@@ -24,7 +23,7 @@ namespace GameMenu
     {
         public static void DisplayMenu()
         {
-            Console.Write($"-------- {Game.Properties.Resources.Menu} --------" +
+            UI.PrintToUI($"-------- {Game.Properties.Resources.Menu} --------" +
                 $"\n1. {Game.Properties.Resources.Start}" +
                 $"\n2. {Game.Properties.Resources.Rules}" +
                   $"\n3. {Game.Properties.Resources.ChangeLang}" +
@@ -34,7 +33,7 @@ namespace GameMenu
 
         public static void DisplayError()
         {
-            Console.WriteLine($"{Game.Properties.Resources.InvalidValue}");
+            UI.PrintToUI($"{Game.Properties.Resources.InvalidValue}");
         }
     }
 
@@ -61,7 +60,7 @@ namespace GameMenu
 
                 default:
                     MenuTextManager.DisplayError();
-                    Console.ReadKey();
+                    UI.WaitForUser();
                     return false;
             }
         }
