@@ -1,4 +1,5 @@
-﻿using Game.Models;  
+﻿using CultureConfig;
+using Game.Models;  
 
 namespace Language
 {
@@ -15,6 +16,7 @@ namespace Language
                 {
                     LanguageChoose.SetLanguage(choice);
                     LanguageMenuManager.DisplaySelectionMessage();
+                    CultureConfigurator.ConfigureCulture();
                     UI.WaitForUser();
                     break;
                 }
@@ -46,7 +48,7 @@ namespace Language
         public static void DisplayMenu()
         {
             UI.ClearUI();
-            UI.PrintToUI("Выберите язык игры / Choose the game language:" +
+            UI.PrintInLineToUI("Выберите язык игры / Choose the game language:" +
                 "\n1. Русский (Russian)" +
                 "\n2. English (Английский)" +
                 "\nВаш выбор (1 или 2) / Your choice (1 or 2): ");

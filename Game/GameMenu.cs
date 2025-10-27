@@ -23,7 +23,7 @@ namespace GameMenu
     {
         public static void DisplayMenu()
         {
-            UI.PrintToUI($"-------- {Game.Properties.Resources.Menu} --------" +
+            UI.PrintInLineToUI($"-------- {Game.Properties.Resources.Menu} --------" +
                 $"\n1. {Game.Properties.Resources.Start}" +
                 $"\n2. {Game.Properties.Resources.Rules}" +
                   $"\n3. {Game.Properties.Resources.ChangeLang}" +

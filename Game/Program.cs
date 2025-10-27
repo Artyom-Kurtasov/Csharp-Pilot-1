@@ -20,41 +20,33 @@ static class MyGame
 {
     public static async Task StartGameAsync()
     {
-        PrepareUI();
+        UI.ClearUI();
         GameLogic.ClearUsedWords();
         GameLogic.SetStartWord();
         GameLogic.BuildLetterDictionary();
         GameLogic.StartGameLoop();
     }
-
-    public static void PrepareUI()
-    {
-        UI.ClearUI();
-    }
 }
 
 static class GameLogic
 {
-    public static void SetStartWord()
-    {
-        while (true)
-        {
-            UI.PrintToUI($"\n{Game.Properties.Resources.WriteF8T30}: ");
+    public static void SetStartWord() 
+    { 
+        while (true) 
+        { 
+            UI.PrintInLineToUI($"\n{Game.Properties.Resources.WriteF8T30}: "); 
             string? input = UI.ReadUserInput();
-            GameState.StartWord = input;
+            GameState.StartWord = input; 
+            if (GameValidatorLogic.IsLengthValid(input ?? "") 
+                && !GameValidatorLogic.ContainsInvalidCharacters(input ?? "")) 
+            { 
+                AddWordToUsedWords(input ?? ""); 
+                break; 
+            } 
 
-            string? validationMessage = GameValidatorLogic.ValidateStartWord();
-            if (validationMessage is null)
-            {
-                AddWordToUsedWords(input ?? "");
-                break;
-            }
-
-            UI.PrintToUI(validationMessage);
-            UI.PrintToUI($"\n{Game.Properties.Resources.PressAnyKey}");
-            UI.WaitForUser();
-            UI.ClearUI();
-        }
+            UI.PrintToUI(GameValidatorLogic.ValidateStartWord() ?? "");
+            UI.PrintToUI($"\n{Game.Properties.Resources.PressAnyKey}"); UI.WaitForUser(); UI.ClearUI(); 
+        } 
     }
 
 
@@ -151,7 +143,7 @@ static class GameTextLogic
     public static void DisplayRoundInfo()
     {
         UI.PrintToUI($"\n{Game.Properties.Resources.StartWord}{GameState.StartWord}");
-        UI.PrintToUI($"{GameTextState.WriteWord}");
+        UI.PrintInLineToUI($"{GameTextState.WriteWord}");
     }
 }
 

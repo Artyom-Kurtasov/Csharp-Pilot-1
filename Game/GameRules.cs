@@ -9,7 +9,7 @@
                 $"\n{Game.Properties.Resources.RuleString3}" +
                 $"\n\n{Game.Properties.Resources.PressAnyKey}");
 
-            UI.ClearUI();
+            UI.WaitForUser();
         }
     }
 }
