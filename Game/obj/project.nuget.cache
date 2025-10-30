@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "id2wNrYE01Y=",
+  "dgSpecHash": "YFvBDKGdcgw=",
   "success": true,
-  "projectFilePath": "E:\\OneDrive\\Desktop\\Csharp-Pilot-1-g\\Game\\Game.csproj",
+  "projectFilePath": "E:\\OneDrive\\Desktop\\Csharp-Pilot-1-Game-1\\Game\\Game.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\prive\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\9.0.10\\microsoft.windowsdesktop.app.ref.9.0.10.nupkg.sha512",
     "C:\\Users\\prive\\.nuget\\packages\\microsoft.netcore.app.ref\\9.0.10\\microsoft.netcore.app.ref.9.0.10.nupkg.sha512",

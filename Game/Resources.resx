@@ -157,7 +157,7 @@
     <value>Строка не может быть пустой!</value>
   </data>
   <data name="NoLetter" xml:space="preserve">
-    <value>В первоначальном слове нет буквы {letterOfWord}! Попробуйте другое слово.</value>
+    <value>В первоначальном слове нет буквы {letterOfWord} (может и других)! Попробуйте другое слово.</value>
   </data>
   <data name="MoreThen" xml:space="preserve">
     <value>В вашем слове больше букв {letterOfWord} (может и других), чем в первоначальном! Попробуйте другое слово.</value>
