@@ -26,14 +26,15 @@ namespace GameMenu
             UI.PrintInLineToUI($"-------- {Game.Properties.Resources.Menu} --------" +
                 $"\n1. {Game.Properties.Resources.Start}" +
                 $"\n2. {Game.Properties.Resources.Rules}" +
-                  $"\n3. {Game.Properties.Resources.ChangeLang}" +
-                 $"\n4. {Game.Properties.Resources.Exit}" +
+                $"\n3. {Game.Properties.Resources.ChangeLang}" +
+                $"\n4. {Game.Properties.Resources.Exit}" +
                 $"\n{Game.Properties.Resources.YourChoice}: ");
         }
 
-        public static void DisplayError()
+       public static void DisplayError()
         {
-            UI.PrintToUI($"{Game.Properties.Resources.InvalidValue}");
+            UI.PrintToUI($"\n{Game.Properties.Resources.InvalidValue}" +
+                $"\n{Game.Properties.Resources.PressAnyKey}");
         }
     }
 
@@ -66,4 +67,5 @@ namespace GameMenu
         }
     }
 }
+
 
