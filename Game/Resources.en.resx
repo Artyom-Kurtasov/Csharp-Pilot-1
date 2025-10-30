@@ -157,10 +157,11 @@
     <value>String cannot be empty!</value>
   </data>
   <data name="NoLetter" xml:space="preserve">
-    <value>First word does not have letter {letterOfWord}! Try another one.</value>
+    <value>First word does not have letter {letterOfWord} (
+maybe other letters too)! Try another one.</value>
   </data>
   <data name="MoreThen" xml:space="preserve">
-    <value>Your word has more {letterOfWord} letters than the original word! Try another one.</value>
+    <value>Your word has more {letterOfWord} letters than the original word (maybe other letters too)! Try another one.</value>
   </data>
   <data name="RuleString1" xml:space="preserve">
     <value>At the start of the game, you need to write an original word from 8 to 30 characters. </value>
